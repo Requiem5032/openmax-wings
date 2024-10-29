@@ -1,0 +1,8 @@
+IMG_SIZE = 299
+BATCH_SIZE = 16
+NUM_CLASSES = 9
+LABELS = range(NUM_CLASSES)
+AUGMENT_PROB = 0.001
+WEIBULL_TAIL_SIZE = 20
+UNKNOWN_SPECIES = ['An_claviger', 'An_plumbeus', 'Cq_richiardii', 'Cx_torrentium']
+NUM_UNKNOWN = len(UNKNOWN_SPECIES)
