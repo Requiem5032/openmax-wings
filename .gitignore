@@ -1,4 +1,5 @@
-__pycache__
-data/
+__pycache__/
+data/wings-2024
+figures/
 model_weights/
 weibull_models/

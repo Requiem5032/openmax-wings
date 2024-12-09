@@ -19,8 +19,7 @@ class OpenMax:
         self.net.eval()
 
     @torch.no_grad
-    def compute(self, dl):
-        openmax = []
+    def get_thresh(self, dl):
         prob_u = []
         y_true = []
 
@@ -31,13 +30,11 @@ class OpenMax:
                 out = self.net(x).cpu().numpy()
 
                 for logits, label in zip(out, y):
-                    temp_openmax, temp_prob_u = compute_openmax(
+                    _, temp_prob_u = compute_openmax(
                         logits, self.weibull_path)
-                    openmax.append(temp_openmax)
                     prob_u.append(temp_prob_u)
                     y_true.append(label)
 
-        openmax = np.asarray(openmax)
         prob_u = np.asarray(prob_u)
         y_true = np.asarray(y_true)
 
@@ -51,12 +48,29 @@ class OpenMax:
         # best_thresh = roc_thresh[best_idx]
         best_idx = np.argmax(pr['f1'])
         best_thresh = pr_thresh[best_idx]
-        return openmax, best_thresh
+        return best_thresh
 
     @torch.no_grad
-    def predict(self, dl):
+    def get_om(self, dl):
+        openmax = []
+
+        with torch.no_grad():
+            for data in dl:
+                x = data[0].to(self.dev)
+                out = self.net(x).cpu().numpy()
+
+                for logits in out:
+                    temp_openmax, _ = compute_openmax(
+                        logits, self.weibull_path)
+                    openmax.append(temp_openmax)
+
+        openmax = np.asarray(openmax)
+        return openmax
+
+    @torch.no_grad
+    def predict(self, dl, thresh):
         y_pred = []
-        openmax, thresh = self.compute(dl)
+        openmax = self.get_om(dl)
 
         for scores in openmax:
             temp = get_openmax_predict_int(scores, thresh, const.NUM_CLASSES)

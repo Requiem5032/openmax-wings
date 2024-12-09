@@ -1,5 +1,8 @@
 import matplotlib.pyplot as plt
 
+CM = 1/2.54  # Convert to centimeter (1 cm = 2.54 inch)
+TEXT_SIZE = 'xx-small'
+
 
 def draw_learning_curve(history, validation=True):
     if validation:
@@ -43,31 +46,31 @@ def draw_learning_curve(history, validation=True):
         plt.show()
 
 
-def draw_confusion_matrix(cm, labels):
+def draw_confusion_matrix(confusion_matrix, labels, path, fold):
     class_num = len(labels)
     tick_marks = range(class_num)
-    thresh = cm.min() + (cm.max()-cm.min()) / 2
+    thresh = confusion_matrix.min() + (confusion_matrix.max()-confusion_matrix.min()) / 2
 
-    fig, ax = plt.subplots(figsize=(15, 15))
-    im = ax.matshow(cm, cmap=plt.cm.gray_r)
+    fig, ax = plt.subplots(figsize=(18*CM, 18*CM))
+    im = ax.matshow(confusion_matrix, cmap=plt.cm.gray_r)
     fig.colorbar(im)
 
     for i in range(class_num):
         for j in range(class_num):
             fg = None
-            if cm[i, j] < thresh:
+            if confusion_matrix[i, j] < thresh:
                 fg = 'black'
             else:
                 fg = 'white'
             ax.text(
                 x=j,
                 y=i,
-                s=cm[i, j],
+                s=confusion_matrix[i, j],
                 ha='center',
                 va='center',
                 ma='center',
                 color=fg,
-                size='large',
+                size=TEXT_SIZE,
             )
 
     ax.tick_params(top=False, labeltop=False, bottom=True, labelbottom=True)
@@ -79,6 +82,7 @@ def draw_confusion_matrix(cm, labels):
         ha='right',
         va='top',
         ma='center',
+        size=TEXT_SIZE,
         rotation=45,
         rotation_mode='default',
     )
@@ -87,6 +91,15 @@ def draw_confusion_matrix(cm, labels):
         ha='right',
         va='center',
         ma='center',
+        size=TEXT_SIZE,
         rotation='horizontal',
         rotation_mode='default',
+    )
+
+    plt.savefig(
+        f'figures/{path}/cm_fold_{fold}.tiff',
+        format='tiff',
+        dpi=600,
+        bbox_inches='tight',
+        transparent=True,
     )

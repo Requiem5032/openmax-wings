@@ -85,7 +85,33 @@ def get_data_loaders(data_df):
     return train_dl, val_dl
 
 
-def get_unknown_data_loader(data_df):
+def get_thresh_data_loader(data_df):
+    train_df = data_df[data_df['Split'] == 'Train'].reset_index(drop=True)
+    train_df = train_df.drop('Split', axis=1)
+    unk_df = pd.read_csv('data/splits/unknown_data.csv')
+    test_df = pd.concat([train_df, unk_df], ignore_index=True)
+    test_tf = alb_transform_test(const.IMG_SIZE)
+
+    # set up the datasets
+    test_dataset = MosDataset(
+        img_size=const.IMG_SIZE,
+        data_df=test_df,
+        transformer=test_tf,
+    )
+
+    # set up the data loader
+    test_dl = DataLoader(
+        test_dataset,
+        batch_size=const.BATCH_SIZE,
+        shuffle=False,
+        pin_memory=True,
+        drop_last=False,
+    )
+
+    return test_dl
+
+
+def get_thresh_data_loader(data_df):
     val_df = data_df[data_df['Split'] == 'Val'].reset_index(drop=True)
     val_df = val_df.drop('Split', axis=1)
     unk_df = pd.read_csv('data/splits/unknown_data.csv')
